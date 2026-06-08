@@ -1,0 +1,2841 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Heitingo Coser App HTML Demo</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --card-2: #252525;
+      --line: #2c2c2c;
+      --red: #ff2b5e;
+      --gold: #ffd966;
+      --text: #ffffff;
+      --muted: #aaaaaa;
+      --mask: rgba(0, 0, 0, 0.72);
+      --shadow: rgba(0, 0, 0, 0.3) 0 4px 12px;
+      --top-safe: env(safe-area-inset-top, 0px);
+      --bottom-safe: env(safe-area-inset-bottom, 0px);
+      font-family: Roboto, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 24% 18%, rgba(255, 43, 94, 0.24), transparent 28%),
+        linear-gradient(135deg, #070707 0%, #181818 50%, #0d0d0d 100%);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .phone {
+      position: relative;
+      width: 375px;
+      height: 812px;
+      overflow: hidden;
+      background: var(--bg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 34px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      overflow-y: auto;
+      padding: calc(22px + var(--top-safe)) 16px calc(80px + var(--bottom-safe));
+      background: var(--bg);
+      scrollbar-width: none;
+    }
+
+    .screen::-webkit-scrollbar {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 180ms ease-out;
+    }
+
+    .screen.no-nav {
+      padding-bottom: 24px;
+    }
+
+    .screen.feed {
+      padding: 0;
+      overflow: hidden;
+      background: #050505;
+    }
+
+    .screen.studio-app {
+      padding: 0;
+      overflow: hidden;
+      background: #050505;
+    }
+
+    .feed-track {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      transition: transform 260ms cubic-bezier(0.22, 0.61, 0.36, 1);
+      will-change: transform;
+      touch-action: none;
+    }
+
+    .feed-slide {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #050505;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .title {
+      margin: 0;
+      font-size: 20px;
+      line-height: 24px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .caption {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 18px;
+    }
+
+    .tips {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .statusbar {
+      position: absolute;
+      z-index: 10;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: calc(22px + var(--top-safe));
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 18px 4px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.92);
+      pointer-events: none;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .back {
+      width: 36px;
+      height: 36px;
+      border-radius: 18px;
+      color: var(--text);
+      background: var(--card);
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      transition: transform 100ms ease;
+    }
+
+    .back:active,
+    .primary:active,
+    .stroke:active,
+    .icon-btn:active {
+      transform: scale(0.95);
+    }
+
+    .primary,
+    .stroke {
+      min-height: 48px;
+      border-radius: 24px;
+      padding: 0 18px;
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: 700;
+      transition: transform 100ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    .primary {
+      color: var(--text);
+      background: linear-gradient(135deg, #ff2b5e, #ff174c);
+      box-shadow: 0 10px 26px rgba(255, 43, 94, 0.28);
+    }
+
+    .stroke {
+      color: var(--red);
+      background: rgba(255, 43, 94, 0.04);
+      border: 1px solid var(--red);
+    }
+
+    .pill {
+      min-height: 34px;
+      border-radius: 17px;
+      padding: 0 14px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 14px;
+    }
+
+    .login-bg {
+      position: absolute;
+      inset: 0;
+      opacity: 0.44;
+      background:
+        linear-gradient(rgba(18, 18, 18, 0.35), rgba(18, 18, 18, 0.92)),
+        url("assets/heitingo-feed.png") center / cover no-repeat;
+    }
+
+    .login-content {
+      position: relative;
+      z-index: 2;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-top: 36px;
+    }
+
+    .guest {
+      align-self: flex-end;
+      color: var(--muted);
+      background: rgba(30, 30, 30, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 17px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .brand {
+      margin-top: 120px;
+      text-align: center;
+    }
+
+    .brand-mark {
+      width: 92px;
+      height: 92px;
+      margin: 0 auto 18px;
+      border-radius: 30px;
+      background:
+        linear-gradient(145deg, rgba(255, 43, 94, 0.95), rgba(255, 217, 102, 0.86)),
+        radial-gradient(circle at 50% 38%, #ffffff, transparent 34%);
+      box-shadow: 0 20px 42px rgba(255, 43, 94, 0.32);
+      display: grid;
+      place-items: center;
+      font-size: 42px;
+      font-weight: 900;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 30px;
+      line-height: 34px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 18px;
+    }
+
+    .login-actions {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 42px;
+    }
+
+    .agreement {
+      text-align: center;
+    }
+
+    .feed-art {
+      position: absolute;
+      inset: 0;
+    }
+
+    .feed-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .feed-art::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, transparent 20%, rgba(0, 0, 0, 0.78) 100%),
+        linear-gradient(90deg, transparent 0%, transparent 62%, rgba(0, 0, 0, 0.22) 100%);
+    }
+
+    .feed-top-tabs {
+      position: absolute;
+      z-index: 9;
+      top: calc(26px + var(--top-safe));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      white-space: nowrap;
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 15px;
+      font-weight: 700;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+      pointer-events: none;
+    }
+
+    .feed-top-tabs span {
+      position: relative;
+    }
+
+    .feed-top-tabs .active {
+      color: var(--text);
+      font-size: 17px;
+    }
+
+    .feed-top-tabs .active::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -8px;
+      width: 18px;
+      height: 3px;
+      border-radius: 3px;
+      background: var(--text);
+      transform: translateX(-50%);
+    }
+
+    .feed-actions {
+      position: absolute;
+      z-index: 3;
+      right: 12px;
+      top: 276px;
+      display: grid;
+      gap: 16px;
+      justify-items: center;
+    }
+
+    .action {
+      display: grid;
+      gap: 5px;
+      justify-items: center;
+      color: var(--text);
+      background: transparent;
+      font-size: 13px;
+      position: relative;
+    }
+
+    .action .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 21px;
+      display: grid;
+      place-items: center;
+      background: rgba(12, 12, 12, 0.44);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(10px);
+      font-size: 24px;
+      transition: transform 150ms ease, color 150ms ease;
+    }
+
+    .action.active.like .icon {
+      color: var(--red);
+      transform: scale(1.12);
+    }
+
+    .action.active.save .icon {
+      color: var(--gold);
+      transform: scale(1.12);
+    }
+
+    .heart-burst {
+      position: absolute;
+      inset: -4px;
+      border: 2px solid rgba(255, 43, 94, 0.6);
+      border-radius: 50%;
+      animation: burst 420ms ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes burst {
+      from { opacity: 1; transform: scale(0.7); }
+      to { opacity: 0; transform: scale(1.85); }
+    }
+
+    .feed-info {
+      position: absolute;
+      z-index: 3;
+      left: 0;
+      right: 0;
+      bottom: calc(64px + var(--bottom-safe));
+      padding: 20px 16px 18px;
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.08));
+    }
+
+    .creator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .avatar {
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: url("assets/heitingo-feed.png") center 28% / 190% no-repeat;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+    }
+
+    .watermark {
+      position: absolute;
+      right: 16px;
+      bottom: 14px;
+      color: rgba(255, 255, 255, 0.64);
+      font-size: 11px;
+      letter-spacing: 0;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      border-radius: 12px;
+      padding: 4px 8px;
+      color: #ffdbe5;
+      background: rgba(255, 43, 94, 0.18);
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .bottom-nav {
+      position: absolute;
+      z-index: 20;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+      height: calc(66px + var(--bottom-safe));
+      padding: 6px 10px var(--bottom-safe);
+      background: rgba(5, 5, 5, 0.98);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(18px);
+    }
+
+    .bottom-nav.show {
+      display: flex;
+    }
+
+    .nav-btn {
+      flex: 1;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 2px;
+      min-width: 0;
+      color: var(--muted);
+      background: transparent;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .nav-btn .nav-icon {
+      font-size: 20px;
+      line-height: 22px;
+    }
+
+    .nav-btn.active {
+      color: var(--text);
+      background: transparent;
+    }
+
+    .nav-btn.active .nav-icon {
+      color: var(--text);
+    }
+
+    .nav-btn.create .nav-icon {
+      width: 46px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 11px;
+      color: #070707;
+      background:
+        linear-gradient(90deg, #19f5ff 0 18%, #ffffff 18% 82%, #ff2b5e 82% 100%);
+      box-shadow: 0 8px 22px rgba(255, 43, 94, 0.18);
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .nav-btn.create.active .nav-icon {
+      transform: translateY(-2px);
+    }
+
+    .section {
+      margin: 18px 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 20px;
+    }
+
+    .h-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 2px 2px 8px;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+    }
+
+    .h-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .select-card {
+      position: relative;
+      flex: 0 0 100px;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+      padding: 10px;
+      border-radius: 16px;
+      background: var(--card);
+      border: 2px solid transparent;
+      color: var(--text);
+      text-align: left;
+      box-shadow: var(--shadow);
+      scroll-snap-align: start;
+    }
+
+    .select-card.selected {
+      border-color: var(--red);
+    }
+
+    .select-card .thumb-bg {
+      position: absolute;
+      inset: 0;
+      background: url("assets/heitingo-feed.png") center / cover no-repeat;
+      opacity: 0.72;
+    }
+
+    .select-card .thumb-bg.alt {
+      filter: hue-rotate(28deg) saturate(0.92);
+      transform: scale(1.15);
+    }
+
+    .select-card .thumb-bg.gold {
+      filter: sepia(0.35) saturate(1.2);
+      transform: scale(1.22);
+    }
+
+    .select-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 20%, rgba(0, 0, 0, 0.76) 100%);
+    }
+
+    .select-card span,
+    .select-card small,
+    .select-card strong {
+      position: relative;
+      z-index: 1;
+    }
+
+    .select-card strong {
+      font-size: 14px;
+      line-height: 18px;
+    }
+
+    .select-card small {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 14px;
+    }
+
+    .plus-card {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background:
+        linear-gradient(145deg, rgba(255, 43, 94, 0.14), rgba(255, 217, 102, 0.08)),
+        var(--card);
+    }
+
+    .plus-card::after {
+      display: none;
+    }
+
+    .plus-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 8px;
+      border-radius: 50%;
+      color: var(--red);
+      background: rgba(255, 43, 94, 0.13);
+      font-size: 28px;
+    }
+
+    .preview {
+      min-height: 224px;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(255, 43, 94, 0.08), rgba(255, 217, 102, 0.06)),
+        #161616;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow);
+    }
+
+    .preview img {
+      width: 100%;
+      height: 224px;
+      object-fit: cover;
+      object-position: center 22%;
+      opacity: 0.86;
+    }
+
+    .preview-caption {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.62);
+      backdrop-filter: blur(10px);
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 54px 1fr 34px;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--red);
+    }
+
+    .toggle-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .switch {
+      width: 48px;
+      height: 28px;
+      padding: 3px;
+      border-radius: 14px;
+      background: #3a3a3a;
+      transition: background 160ms ease;
+    }
+
+    .switch::before {
+      content: "";
+      display: block;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--text);
+      transition: transform 160ms ease;
+    }
+
+    .switch.on {
+      background: var(--red);
+    }
+
+    .switch.on::before {
+      transform: translateX(20px);
+    }
+
+    .upload-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .upload-box {
+      min-height: 112px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      gap: 8px;
+      padding: 12px 8px;
+      color: var(--muted);
+      background: var(--card);
+      border: 1px dashed rgba(255, 255, 255, 0.22);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .upload-box.filled {
+      color: var(--text);
+      border-style: solid;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.62)),
+        url("assets/heitingo-feed.png") center 20% / cover no-repeat;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 70px;
+      padding: 12px;
+      border-radius: 16px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+
+    .list-thumb {
+      width: 50px;
+      height: 50px;
+      flex: 0 0 auto;
+      border-radius: 14px;
+      background: url("assets/heitingo-feed.png") center / cover no-repeat;
+    }
+
+    .list-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .list-main strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+      line-height: 18px;
+    }
+
+    .badge {
+      flex: 0 0 auto;
+      border-radius: 12px;
+      padding: 4px 8px;
+      color: var(--gold);
+      background: rgba(255, 217, 102, 0.12);
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .segments {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0 14px;
+      padding: 4px;
+      border-radius: 18px;
+      background: var(--card);
+    }
+
+    .seg-btn {
+      flex: 1;
+      min-height: 34px;
+      border-radius: 15px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 13px;
+    }
+
+    .seg-btn.active {
+      color: var(--text);
+      background: var(--red);
+    }
+
+    .profile-head {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      padding: 20px 0 14px;
+    }
+
+    .profile-avatar {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: url("assets/heitingo-feed.png") center 24% / 190% no-repeat;
+      border: 3px solid rgba(255, 43, 94, 0.72);
+      box-shadow: 0 12px 34px rgba(255, 43, 94, 0.18);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin: 12px 0 18px;
+      text-align: center;
+    }
+
+    .stat {
+      min-width: 0;
+      border-radius: 14px;
+      padding: 10px 4px;
+      background: var(--card);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 15px;
+      line-height: 18px;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 13px;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .quick-card {
+      min-height: 80px;
+      border-radius: 16px;
+      padding: 12px 10px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      text-align: left;
+    }
+
+    .quick-card .quick-icon {
+      display: block;
+      color: var(--red);
+      font-size: 22px;
+      line-height: 24px;
+      margin-bottom: 8px;
+    }
+
+    .works-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+    }
+
+    .work {
+      aspect-ratio: 1 / 1.32;
+      border-radius: 14px;
+      overflow: hidden;
+      background: url("assets/heitingo-feed.png") center / cover no-repeat;
+      position: relative;
+    }
+
+    .work:nth-child(2n) {
+      filter: hue-rotate(20deg);
+    }
+
+    .work:nth-child(3n) {
+      filter: saturate(0.72) brightness(1.12);
+    }
+
+    .art-tile {
+      --tile-a: #ff2b5e;
+      --tile-b: #191919;
+      --tile-c: #ffd966;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 28% 18%, color-mix(in srgb, var(--tile-c), transparent 18%), transparent 24%),
+        linear-gradient(135deg, color-mix(in srgb, var(--tile-a), #000 18%), var(--tile-b));
+    }
+
+    .art-tile::before {
+      content: "";
+      position: absolute;
+      inset: 14% 18% 24%;
+      border-radius: 48% 48% 38% 38%;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 18%),
+        radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.92) 0 9%, transparent 10%),
+        linear-gradient(160deg, var(--tile-a), var(--tile-c));
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+      opacity: 0.92;
+    }
+
+    .art-tile::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, 0.78) 100%),
+        repeating-linear-gradient(90deg, transparent 0 18px, rgba(255, 255, 255, 0.05) 18px 19px);
+    }
+
+    .tone-ruby { --tile-a: #ff2b5e; --tile-b: #1c0d12; --tile-c: #ff9db5; }
+    .tone-cyan { --tile-a: #00d5ff; --tile-b: #07191e; --tile-c: #b7f3ff; }
+    .tone-gold { --tile-a: #ffd966; --tile-b: #211808; --tile-c: #fff0a8; }
+    .tone-violet { --tile-a: #9d6bff; --tile-b: #160c24; --tile-c: #f0d6ff; }
+    .tone-green { --tile-a: #36d399; --tile-b: #071b14; --tile-c: #bcffe2; }
+    .tone-ice { --tile-a: #8fd3ff; --tile-b: #07111f; --tile-c: #ffffff; }
+
+    .art-name {
+      position: absolute;
+      z-index: 2;
+      left: 8px;
+      right: 8px;
+      bottom: 8px;
+      display: block;
+      color: var(--text);
+      font-size: 11px;
+      line-height: 14px;
+      text-align: left;
+    }
+
+    button.work {
+      border: 0;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .work.real,
+    .list-thumb.real,
+    .hero-detail.real,
+    .publish-cover.real,
+    .product-preview.real,
+    .success-img.real,
+    .result-preview {
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    .work.real::before,
+    .work.real::after {
+      display: none;
+    }
+
+    .work.real::after,
+    .hero-detail.real::after,
+    .publish-cover.real::after,
+    .product-preview.real::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      display: block;
+      background: linear-gradient(180deg, transparent 42%, rgba(0, 0, 0, 0.78) 100%);
+    }
+
+    .list-thumb.real {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .list-thumb.real::before,
+    .list-thumb.real::after {
+      display: none;
+    }
+
+    .hero-detail.real,
+    .publish-cover.real,
+    .product-preview.real {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feed-links {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .feed-pager {
+      position: absolute;
+      z-index: 8;
+      left: 14px;
+      top: calc(64px + var(--top-safe));
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 16px;
+      color: rgba(255, 255, 255, 0.88);
+      background: rgba(0, 0, 0, 0.34);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 12px;
+      backdrop-filter: blur(10px);
+    }
+
+    .feed-hint {
+      position: absolute;
+      z-index: 8;
+      right: 16px;
+      top: calc(65px + var(--top-safe));
+      padding: 6px 10px;
+      border-radius: 16px;
+      color: rgba(255, 255, 255, 0.82);
+      background: rgba(0, 0, 0, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 12px;
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+    }
+
+    .feed-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .feed-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.36);
+    }
+
+    .feed-dot.active {
+      width: 14px;
+      border-radius: 6px;
+      background: var(--red);
+    }
+
+    .mini-link {
+      min-height: 34px;
+      border-radius: 17px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 13px;
+    }
+
+    .hero-detail {
+      min-height: 320px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .hero-detail .art-name {
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      font-size: 20px;
+      line-height: 24px;
+      font-weight: 800;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 12px 0 16px;
+    }
+
+    .metric {
+      min-height: 58px;
+      border-radius: 14px;
+      padding: 9px 6px;
+      text-align: center;
+      background: var(--card);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 15px;
+      line-height: 18px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 14px;
+      margin-top: 3px;
+    }
+
+    .info-panel {
+      padding: 14px;
+      border-radius: 16px;
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: var(--shadow);
+    }
+
+    .info-panel + .info-panel {
+      margin-top: 10px;
+    }
+
+    .kv-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 17px;
+    }
+
+    .kv strong {
+      color: var(--text);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .two-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .comment-card {
+      display: grid;
+      grid-template-columns: 40px 1fr;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .comment-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--red), var(--gold));
+    }
+
+    .composer {
+      position: sticky;
+      bottom: calc(72px + var(--bottom-safe));
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 8px;
+      border-radius: 20px;
+      background: rgba(30, 30, 30, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .composer input {
+      min-width: 0;
+      height: 38px;
+      border: 0;
+      border-radius: 19px;
+      padding: 0 12px;
+      color: var(--text);
+      background: #2a2a2a;
+      outline: none;
+    }
+
+    .chat-list {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 18px;
+    }
+
+    .bubble {
+      max-width: 78%;
+      padding: 11px 13px;
+      border-radius: 18px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 18px;
+    }
+
+    .bubble.me {
+      justify-self: end;
+      background: var(--red);
+    }
+
+    .bubble.system {
+      justify-self: center;
+      max-width: 92%;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 12px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .timeline-step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 10px;
+    }
+
+    .timeline-dot {
+      width: 12px;
+      height: 12px;
+      margin: 4px auto 0;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 5px rgba(255, 43, 94, 0.12);
+    }
+
+    .timeline-step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 12px;
+      top: 22px;
+      bottom: -12px;
+      width: 1px;
+      background: var(--line);
+    }
+
+    .address-card {
+      padding: 14px;
+      border-radius: 16px;
+      color: var(--text);
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      text-align: left;
+      width: 100%;
+    }
+
+    .publish-cover {
+      min-height: 230px;
+      border-radius: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .color-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .swatch {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      background: var(--swatch, var(--red));
+    }
+
+    .wallet-balance {
+      margin: 8px 0 20px;
+      padding: 20px;
+      border-radius: 20px;
+      background:
+        linear-gradient(135deg, rgba(255, 43, 94, 0.22), rgba(255, 217, 102, 0.12)),
+        var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .wallet-balance strong {
+      display: block;
+      margin-top: 8px;
+      color: var(--gold);
+      font-size: 38px;
+      line-height: 42px;
+    }
+
+    .package-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .package-card {
+      min-height: 104px;
+      padding: 14px;
+      border-radius: 16px;
+      color: var(--text);
+      background: var(--card);
+      border: 2px solid transparent;
+      text-align: left;
+    }
+
+    .package-card.selected {
+      border-color: var(--gold);
+    }
+
+    .product-preview {
+      position: relative;
+      min-height: 254px;
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.74)),
+        url("assets/heitingo-feed.png") center / cover no-repeat;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .product-frame {
+      position: absolute;
+      z-index: 2;
+      left: 56px;
+      right: 56px;
+      top: 34px;
+      bottom: 34px;
+      border: 8px solid rgba(255, 217, 102, 0.86);
+      border-radius: 16px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+    }
+
+    .form-field {
+      width: 100%;
+      min-height: 48px;
+      margin: 8px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0 12px;
+      color: var(--text);
+      background: var(--card);
+      outline: none;
+    }
+
+    .overlay {
+      position: absolute;
+      z-index: 50;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: var(--mask);
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.show {
+      display: grid;
+    }
+
+    .dialog {
+      width: 100%;
+      max-width: 300px;
+      padding: 22px;
+      border-radius: 24px;
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.58);
+      text-align: center;
+    }
+
+    .dialog.generate {
+      max-width: 322px;
+      text-align: left;
+    }
+
+    .generation-layout {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 14px;
+      align-items: stretch;
+      margin: 16px 0;
+    }
+
+    .result-preview {
+      min-height: 152px;
+      border-radius: 18px;
+      background-image:
+        linear-gradient(180deg, rgba(255, 43, 94, 0.1), rgba(0, 0, 0, 0.38)),
+        url("assets/cos-feed-01.png");
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24);
+    }
+
+    .generation-steps {
+      display: grid;
+      gap: 8px;
+      align-content: center;
+    }
+
+    .generation-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 15px;
+    }
+
+    .generation-step::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #555;
+      flex: 0 0 auto;
+    }
+
+    .generation-step.active {
+      color: var(--text);
+    }
+
+    .generation-step.active::before {
+      background: var(--red);
+      box-shadow: 0 0 0 5px rgba(255, 43, 94, 0.16);
+    }
+
+    .generation-step.done::before {
+      background: var(--gold);
+    }
+
+    .progress-track {
+      height: 8px;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #303030;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--red), var(--gold));
+      transition: width 220ms ease;
+    }
+
+    .generated-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 8px;
+      scrollbar-width: none;
+      margin-top: 12px;
+    }
+
+    .generated-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .generated-chip {
+      width: 64px;
+      height: 86px;
+      flex: 0 0 auto;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      background-position: center;
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    .generated-chip.active {
+      border-color: var(--red);
+    }
+
+    .studio-stage {
+      position: absolute;
+      inset: 0 0 276px;
+      overflow: hidden;
+      background: #050505;
+    }
+
+    .studio-stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 28%;
+      display: block;
+    }
+
+    .studio-stage::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.58), transparent 24%, rgba(0, 0, 0, 0.8) 100%),
+        linear-gradient(90deg, transparent 0%, transparent 58%, rgba(0, 0, 0, 0.22) 100%);
+      pointer-events: none;
+    }
+
+    .studio-topbar {
+      position: absolute;
+      z-index: 4;
+      left: 14px;
+      right: 14px;
+      top: calc(26px + var(--top-safe));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .round-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.36);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(12px);
+      font-size: 18px;
+    }
+
+    .studio-title {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .studio-title strong {
+      display: block;
+      font-size: 17px;
+      line-height: 20px;
+    }
+
+    .studio-title span {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .studio-tools {
+      position: absolute;
+      z-index: 4;
+      right: 12px;
+      top: 132px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .studio-tool {
+      width: 52px;
+      min-height: 58px;
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      padding: 8px 4px;
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.36);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      backdrop-filter: blur(12px);
+      font-size: 11px;
+      line-height: 14px;
+    }
+
+    .studio-tool strong {
+      font-size: 20px;
+      line-height: 20px;
+    }
+
+    .studio-copy {
+      position: absolute;
+      z-index: 4;
+      left: 16px;
+      right: 82px;
+      bottom: 18px;
+    }
+
+    .studio-copy h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 26px;
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .studio-sheet {
+      position: absolute;
+      z-index: 6;
+      left: 0;
+      right: 0;
+      bottom: calc(64px + var(--bottom-safe));
+      height: 326px;
+      padding: 10px 14px 14px;
+      background: rgba(14, 14, 14, 0.96);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(18px);
+    }
+
+    .sheet-grip {
+      width: 42px;
+      height: 4px;
+      border-radius: 4px;
+      margin: 0 auto 10px;
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .mode-tabs .seg-btn {
+      min-height: 32px;
+      background: #222;
+    }
+
+    .prompt-box {
+      min-height: 48px;
+      border-radius: 16px;
+      padding: 10px 12px;
+      color: rgba(255, 255, 255, 0.88);
+      background: #1c1c1c;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 13px;
+      line-height: 17px;
+      margin-bottom: 10px;
+    }
+
+    .studio-assets {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+
+    .studio-assets::-webkit-scrollbar {
+      display: none;
+    }
+
+    .asset-chip {
+      position: relative;
+      width: 74px;
+      height: 96px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      color: var(--text);
+      background-position: center;
+      background-size: cover;
+      text-align: left;
+      padding: 0;
+    }
+
+    .asset-chip.selected {
+      border-color: var(--red);
+    }
+
+    .asset-chip::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.8) 100%);
+    }
+
+    .asset-chip span {
+      position: absolute;
+      z-index: 1;
+      left: 8px;
+      right: 8px;
+      bottom: 7px;
+      font-size: 11px;
+      line-height: 14px;
+    }
+
+    .studio-generate {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .cost-chip {
+      min-width: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 16px;
+    }
+
+    .cost-chip strong {
+      display: block;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .generate-btn {
+      min-width: 132px;
+      min-height: 46px;
+      border-radius: 23px;
+      padding: 0 18px;
+      color: var(--text);
+      background: linear-gradient(135deg, #ff2b5e, #ff174c);
+      box-shadow: 0 12px 30px rgba(255, 43, 94, 0.28);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .wand {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      background: radial-gradient(circle, var(--red), #7f1632);
+      font-size: 38px;
+      animation: pulse 900ms ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(255, 43, 94, 0.45); }
+      50% { transform: scale(1.04); box-shadow: 0 0 0 18px rgba(255, 43, 94, 0); }
+    }
+
+    .success-img {
+      width: 128px;
+      height: 170px;
+      margin: 0 auto 14px;
+      border-radius: 18px;
+      background: url("assets/cos-feed-01.png") center / cover no-repeat;
+      border: 2px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .dialog-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .dialog-actions .primary,
+    .dialog-actions .stroke {
+      min-height: 42px;
+      font-size: 14px;
+      padding: 0 10px;
+    }
+
+    @media (max-width: 430px), (max-height: 840px) {
+      body {
+        display: block;
+        background: var(--bg);
+      }
+
+      .phone {
+        width: 100vw;
+        height: 100dvh;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone" aria-label="Heitingo Coser App Demo">
+    <section class="screen active no-nav" id="login">
+      <div class="login-bg"></div>
+      <div class="login-content">
+        <button class="guest" data-goto="feed">游客模式</button>
+        <div class="brand">
+          <div class="brand-mark">H</div>
+          <h1>Heitingo Coser</h1>
+          <p>AI 换装 · 角色作品流 · 实体衍生品</p>
+        </div>
+        <div class="login-actions">
+          <button class="primary" data-goto="feed">微信一键登录</button>
+          <button class="primary" data-goto="feed">手机号登录</button>
+          <p class="agreement tips">登录即同意《用户协议》《隐私政策》</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen feed" id="feed">
+      <div class="statusbar"><span>9:41</span><span>5G  100%</span></div>
+      <div class="feed-top-tabs"><span>关注</span><span class="active">推荐</span><span>AI 广场</span></div>
+      <div class="feed-pager">
+        <span id="feedIndex">1 / 5</span>
+        <span class="feed-dots" aria-hidden="true">
+          <span class="feed-dot active"></span><span class="feed-dot"></span><span class="feed-dot"></span><span class="feed-dot"></span><span class="feed-dot"></span>
+        </span>
+      </div>
+      <div class="feed-hint">上滑换作品</div>
+      <div class="feed-track" id="feedTrack">
+        <article class="feed-slide" data-cos="ruby">
+          <div class="feed-art"><img src="assets/cos-feed-01.png" alt="赤刃骑士 COS 首页作品"></div>
+          <div class="feed-actions" aria-label="作品互动">
+            <button class="action like" data-action="like"><span class="icon">♡</span><span>18.6k</span></button>
+            <button class="action save" data-action="save"><span class="icon">☆</span><span>6.1k</span></button>
+            <button class="action" data-goto="comments"><span class="icon">◌</span><span>1.2k</span></button>
+            <button class="action" data-goto="publish-settings"><span class="icon">↗</span><span>发布</span></button>
+          </div>
+          <div class="feed-info">
+            <div class="creator"><div class="avatar" style="background-image: url('assets/cos-feed-01.png')" aria-hidden="true"></div><div><strong>@红夜Coser</strong><p class="tips">原创角色 · 暗红舞台套装</p></div></div>
+            <p class="caption">赤刃骑士：红黑战斗披风、金属徽记和强光舞台，适合做亚克力卡牌。</p>
+            <div class="tags"><span class="tag">#赤刃骑士</span><span class="tag">#AI换装</span><span class="tag">#红黑战甲</span></div>
+            <div class="feed-links"><button class="mini-link" data-goto="work-detail">作品详情</button><button class="mini-link" data-goto="creator-profile">作者主页</button></div>
+            <span class="watermark">Heitingo AI</span>
+          </div>
+        </article>
+        <article class="feed-slide" data-cos="azure">
+          <div class="feed-art"><img src="assets/cos-feed-02.png" alt="霓蓝指挥官 COS 首页作品"></div>
+          <div class="feed-actions" aria-label="作品互动">
+            <button class="action like" data-action="like"><span class="icon">♡</span><span>15.4k</span></button>
+            <button class="action save" data-action="save"><span class="icon">☆</span><span>5.8k</span></button>
+            <button class="action" data-goto="comments"><span class="icon">◌</span><span>864</span></button>
+            <button class="action" data-goto="publish-settings"><span class="icon">↗</span><span>发布</span></button>
+          </div>
+          <div class="feed-info">
+            <div class="creator"><div class="avatar" style="background-image: url('assets/cos-feed-02.png')" aria-hidden="true"></div><div><strong>@蓝塔Commander</strong><p class="tips">赛博指挥官 · 机甲控制室</p></div></div>
+            <p class="caption">霓蓝指挥官：蓝黑轻甲、全息控制台和冷色灯带，适合做金属徽章。</p>
+            <div class="tags"><span class="tag">#霓蓝指挥官</span><span class="tag">#赛博COS</span><span class="tag">#机甲风</span></div>
+            <div class="feed-links"><button class="mini-link" data-goto="work-detail">作品详情</button><button class="mini-link" data-goto="creator-profile">作者主页</button></div>
+            <span class="watermark">Heitingo AI</span>
+          </div>
+        </article>
+        <article class="feed-slide" data-cos="gold">
+          <div class="feed-art"><img src="assets/cos-feed-03.png" alt="金羽祭司 COS 首页作品"></div>
+          <div class="feed-actions" aria-label="作品互动">
+            <button class="action like" data-action="like"><span class="icon">♡</span><span>21.3k</span></button>
+            <button class="action save" data-action="save"><span class="icon">☆</span><span>8.2k</span></button>
+            <button class="action" data-goto="comments"><span class="icon">◌</span><span>1.5k</span></button>
+            <button class="action" data-goto="publish-settings"><span class="icon">↗</span><span>发布</span></button>
+          </div>
+          <div class="feed-info">
+            <div class="creator"><div class="avatar" style="background-image: url('assets/cos-feed-03.png')" aria-hidden="true"></div><div><strong>@金羽Oracle</strong><p class="tips">典礼祭司 · 暖金神殿</p></div></div>
+            <p class="caption">金羽祭司：白金礼装、羽饰和夜间神殿光效，适合做桌面立牌。</p>
+            <div class="tags"><span class="tag">#金羽祭司</span><span class="tag">#礼装COS</span><span class="tag">#暖金光效</span></div>
+            <div class="feed-links"><button class="mini-link" data-goto="work-detail">作品详情</button><button class="mini-link" data-goto="creator-profile">作者主页</button></div>
+            <span class="watermark">Heitingo AI</span>
+          </div>
+        </article>
+        <article class="feed-slide" data-cos="forest">
+          <div class="feed-art"><img src="assets/cos-feed-04.png" alt="森境弓手 COS 首页作品"></div>
+          <div class="feed-actions" aria-label="作品互动">
+            <button class="action like" data-action="like"><span class="icon">♡</span><span>13.7k</span></button>
+            <button class="action save" data-action="save"><span class="icon">☆</span><span>4.9k</span></button>
+            <button class="action" data-goto="comments"><span class="icon">◌</span><span>721</span></button>
+            <button class="action" data-goto="publish-settings"><span class="icon">↗</span><span>发布</span></button>
+          </div>
+          <div class="feed-info">
+            <div class="creator"><div class="avatar" style="background-image: url('assets/cos-feed-04.png')" aria-hidden="true"></div><div><strong>@森境Archer</strong><p class="tips">森林弓手 · 月光秘境</p></div></div>
+            <p class="caption">森境弓手：实用弓手装、绿光粒子和月夜森林，适合做挂画。</p>
+            <div class="tags"><span class="tag">#森境弓手</span><span class="tag">#自然系COS</span><span class="tag">#弓箭模板</span></div>
+            <div class="feed-links"><button class="mini-link" data-goto="work-detail">作品详情</button><button class="mini-link" data-goto="creator-profile">作者主页</button></div>
+            <span class="watermark">Heitingo AI</span>
+          </div>
+        </article>
+        <article class="feed-slide" data-cos="ice">
+          <div class="feed-art"><img src="assets/cos-feed-05.png" alt="冰轨歌姬 COS 首页作品"></div>
+          <div class="feed-actions" aria-label="作品互动">
+            <button class="action like" data-action="like"><span class="icon">♡</span><span>19.9k</span></button>
+            <button class="action save" data-action="save"><span class="icon">☆</span><span>7.4k</span></button>
+            <button class="action" data-goto="comments"><span class="icon">◌</span><span>1.1k</span></button>
+            <button class="action" data-goto="publish-settings"><span class="icon">↗</span><span>发布</span></button>
+          </div>
+          <div class="feed-info">
+            <div class="creator"><div class="avatar" style="background-image: url('assets/cos-feed-05.png')" aria-hidden="true"></div><div><strong>@冰轨Diva</strong><p class="tips">冰蓝歌姬 · 冻结舞台</p></div></div>
+            <p class="caption">冰轨歌姬：冰蓝演出服、水晶麦克风和冷光舞台，适合做限定立牌。</p>
+            <div class="tags"><span class="tag">#冰轨歌姬</span><span class="tag">#偶像COS</span><span class="tag">#冰雪舞台</span></div>
+            <div class="feed-links"><button class="mini-link" data-goto="work-detail">作品详情</button><button class="mini-link" data-goto="creator-profile">作者主页</button></div>
+            <span class="watermark">Heitingo AI</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="screen studio-app" id="studio">
+      <div class="studio-stage">
+        <img id="studioPreviewImg" src="assets/cos-feed-01.png" alt="AI 工坊实时预览">
+        <div class="studio-topbar">
+          <button class="round-icon" data-goto="feed" aria-label="返回首页">‹</button>
+          <div class="studio-title">
+            <strong>AI 换装工坊</strong>
+            <span>实时预览 · 竖屏作品生成</span>
+          </div>
+          <button class="pill" data-goto="wallet">26 点</button>
+        </div>
+        <div class="studio-tools">
+          <button class="studio-tool" data-goto="upload"><strong>＋</strong><span>上传</span></button>
+          <button class="studio-tool" data-goto="style-lab"><strong>⚙</strong><span>参数</span></button>
+          <button class="studio-tool" data-goto="publish-settings"><strong>↗</strong><span>发布</span></button>
+          <button class="studio-tool" data-goto="orders"><strong>□</strong><span>草稿</span></button>
+        </div>
+        <div class="studio-copy">
+          <h2>赤刃骑士预览</h2>
+          <p class="caption">红黑战斗披风、金属徽记、霓虹舞台光效，生成后可直接发布或定制实体周边。</p>
+          <div class="tags"><span class="tag">#AI换装</span><span class="tag">#竖屏作品</span><span class="tag">#可定制</span></div>
+        </div>
+      </div>
+
+      <div class="studio-sheet">
+        <div class="sheet-grip"></div>
+        <div class="mode-tabs">
+          <button class="seg-btn active">形象</button>
+          <button class="seg-btn">服装</button>
+          <button class="seg-btn">场景</button>
+          <button class="seg-btn">姿势</button>
+        </div>
+        <div class="prompt-box">红黑战斗披风，金属徽记，霓虹舞台，海报站姿，高清二次元 COS 作品。</div>
+        <div class="studio-assets" id="generatedStrip">
+          <button class="asset-chip generated-chip selectable selected active" style="background-image: url('assets/cos-feed-01.png')" aria-label="赤刃骑士"><span>赤刃骑士</span></button>
+          <button class="asset-chip generated-chip selectable" style="background-image: url('assets/cos-feed-02.png')" aria-label="霓蓝指挥官"><span>霓蓝指挥官</span></button>
+          <button class="asset-chip generated-chip selectable" style="background-image: url('assets/cos-feed-03.png')" aria-label="金羽祭司"><span>金羽祭司</span></button>
+          <button class="asset-chip generated-chip selectable" style="background-image: url('assets/cos-feed-04.png')" aria-label="森境弓手"><span>森境弓手</span></button>
+          <button class="asset-chip generated-chip selectable" style="background-image: url('assets/cos-feed-05.png')" aria-label="冰轨歌姬"><span>冰轨歌姬</span></button>
+          <button class="asset-chip" data-goto="upload" style="background-image: linear-gradient(135deg, rgba(255,43,94,.42), rgba(25,245,255,.22))"><span>上传形象</span></button>
+        </div>
+        <div class="studio-generate">
+          <div class="cost-chip">
+            <strong>图片扣 1 点 · 视频扣 2 点</strong>
+            当前队列约 18 秒，生成后自动进入最近作品
+          </div>
+          <button class="generate-btn" data-action="generate">立即生成</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="upload">
+      <div class="top-row">
+        <button class="back" data-goto="studio" aria-label="返回">‹</button>
+        <h1 class="title">上传形象</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <p class="caption">请上传 3~5 张不同角度清晰人脸照，用于生成私有数字形象。</p>
+      <div class="upload-grid">
+        <button class="upload-box filled" data-goto="upload-capture"><strong>正面</strong><span>已上传</span></button>
+        <button class="upload-box" data-goto="upload-capture"><strong>左 45°</strong><span>+</span></button>
+        <button class="upload-box" data-goto="upload-capture"><strong>右 45°</strong><span>+</span></button>
+      </div>
+      <div class="section list">
+        <div class="toggle-line"><span>仅自己可见</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line"><span>允许他人使用并参与分成</span><button class="switch" data-action="toggle"></button></div>
+      </div>
+      <button class="primary" style="width: 100%" data-action="generate">生成数字分身</button>
+    </section>
+
+    <section class="screen" id="messages">
+      <div class="top-row"><h1 class="title">消息</h1><button class="pill" data-goto="message-read-result">全部已读</button></div>
+      <div class="segments">
+        <button class="seg-btn active">互动消息</button>
+        <button class="seg-btn">系统通知</button>
+        <button class="seg-btn">私信</button>
+      </div>
+      <div class="list">
+        <button class="list-card" data-goto="message-detail"><div class="list-thumb real" style="background-image: url('assets/cos-feed-02.png')"></div><div class="list-main"><strong>星绘收藏了你的作品</strong><p class="tips">霓蓝指挥官 · 2 分钟前</p></div><span class="badge">新</span></button>
+        <button class="list-card" data-goto="membership"><div class="list-thumb real" style="background-image: url('assets/cos-feed-03.png')"></div><div class="list-main"><strong>系统通知：月卡奖励到账</strong><p class="tips">今日 2 点已发放 · 09:00</p></div></button>
+        <button class="list-card" data-goto="chat-detail"><div class="list-thumb real" style="background-image: url('assets/cos-feed-05.png')"></div><div class="list-main"><strong>买家咨询实体定制</strong><p class="tips">桌面立牌能否加夜光底座？ · 昨天</p></div><span class="badge">1</span></button>
+      </div>
+    </section>
+
+    <section class="screen" id="profile">
+      <div class="profile-head">
+        <div class="profile-avatar"></div>
+        <div style="text-align: center">
+          <h1 class="title">@红夜Coser</h1>
+          <p class="tips">AI 角色创作者 · 已发布 24 个作品</p>
+        </div>
+        <button class="stroke" data-goto="creator-subscription">已关注</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><strong>24</strong><span>作品</span></div>
+        <div class="stat"><strong>8.2k</strong><span>粉丝</span></div>
+        <div class="stat"><strong>118</strong><span>关注</span></div>
+        <div class="stat"><strong>26</strong><span>点数</span></div>
+        <div class="stat"><strong>6</strong><span>订单</span></div>
+      </div>
+      <div class="quick-grid">
+        <button class="quick-card" data-goto="wallet"><span class="quick-icon">◆</span><strong>点数钱包</strong></button>
+        <button class="quick-card" data-goto="orders"><span class="quick-icon">□</span><strong>定制订单</strong></button>
+        <button class="quick-card" data-goto="product"><span class="quick-icon">◇</span><strong>实体定制</strong></button>
+      </div>
+      <div class="section-head"><h2>作品墙</h2><p class="tips">累计点赞 12.8w · 收藏 4.2w</p></div>
+      <div class="works-grid">
+        <button class="work real" style="background-image: url('assets/cos-feed-01.png')" data-goto="work-detail"><span class="art-name">赤刃骑士</span></button>
+        <button class="work real" style="background-image: url('assets/cos-feed-02.png')" data-goto="work-detail"><span class="art-name">霓蓝指挥官</span></button>
+        <button class="work real" style="background-image: url('assets/cos-feed-03.png')" data-goto="work-detail"><span class="art-name">金羽祭司</span></button>
+        <button class="work real" style="background-image: url('assets/cos-feed-05.png')" data-goto="work-detail"><span class="art-name">冰轨歌姬</span></button>
+        <button class="work real" style="background-image: url('assets/cos-feed-04.png')" data-goto="work-detail"><span class="art-name">森境弓手</span></button>
+        <button class="work real" style="background-image: url('assets/cos-feed-01.png')" data-goto="work-detail"><span class="art-name">红夜再演</span></button>
+      </div>
+    </section>
+
+    <section class="screen" id="wallet">
+      <div class="top-row">
+        <button class="back" data-goto="profile" aria-label="返回">‹</button>
+        <h1 class="title">点数钱包</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="wallet-balance">
+        <p class="caption">当前点数</p>
+        <strong>26</strong>
+      </div>
+      <div class="package-grid">
+        <button class="package-card selectable selected"><p class="tips">套餐 1</p><h2>6 元</h2><span class="badge">6 点</span></button>
+        <button class="package-card selectable"><p class="tips">套餐 2</p><h2>30 元</h2><span class="badge">32 点</span></button>
+      </div>
+      <div class="list">
+        <div class="list-card"><div class="list-main"><strong>生成图片</strong><p class="tips">今天 11:20</p></div><span>-1 点</span></div>
+        <div class="list-card"><div class="list-main"><strong>月卡每日奖励</strong><p class="tips">今天 09:00</p></div><span style="color: var(--gold)">+2 点</span></div>
+      </div>
+      <button class="primary" style="width: 100%; margin-top: 16px" data-goto="membership">查看月卡权益</button>
+    </section>
+
+    <section class="screen" id="product">
+      <div class="top-row">
+        <button class="back" data-goto="profile" aria-label="返回">‹</button>
+        <h1 class="title">实体定制</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="product-preview real" id="productPreview" style="background-image: url('assets/cos-feed-01.png')"><div class="product-frame"></div></div>
+      <div class="section-head"><h2>选择产品</h2><p class="tips">作品实时套入</p></div>
+      <div class="h-scroll">
+        <button class="select-card selectable selected"><strong>亚克力卡牌</strong><small>28 元</small></button>
+        <button class="select-card selectable"><strong>金属徽章</strong><small>38 元</small></button>
+        <button class="select-card selectable"><strong>桌面立牌</strong><small>68 元</small></button>
+        <button class="select-card selectable"><strong>挂画</strong><small>128 元</small></button>
+      </div>
+      <select class="form-field" aria-label="尺寸选择">
+        <option>标准尺寸 70mm × 100mm</option>
+        <option>大尺寸 100mm × 140mm</option>
+      </select>
+      <input class="form-field" value="上海市 静安区 未来路 88 号" aria-label="收货地址">
+      <button class="stroke" style="width: 100%; margin-bottom: 10px" data-goto="address-edit">修改收货地址</button>
+      <button class="primary" style="width: 100%" data-goto="checkout">立即支付</button>
+    </section>
+
+    <section class="screen" id="orders">
+      <div class="top-row">
+        <button class="back" data-goto="profile" aria-label="返回">‹</button>
+        <h1 class="title">我的定制订单</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="list">
+        <button class="list-card" data-goto="order-detail"><div class="list-thumb real" style="background-image: url('assets/cos-feed-01.png')"></div><div class="list-main"><strong>亚克力卡牌</strong><p class="tips">赤刃骑士 · 2026-06-08 11:24</p></div><span class="badge">制作中</span></button>
+        <button class="list-card" data-goto="order-detail"><div class="list-thumb real" style="background-image: url('assets/cos-feed-02.png')"></div><div class="list-main"><strong>金属徽章</strong><p class="tips">霓蓝指挥官 · 2026-06-06 15:10</p></div><span class="badge">已发货</span></button>
+        <button class="list-card" data-goto="order-detail"><div class="list-thumb real" style="background-image: url('assets/cos-feed-03.png')"></div><div class="list-main"><strong>桌面立牌</strong><p class="tips">金羽祭司 · 2026-06-01 13:40</p></div><span class="badge">已完成</span></button>
+      </div>
+    </section>
+
+    <section class="screen" id="work-detail">
+      <div class="top-row">
+        <button class="back" data-goto="feed" aria-label="返回">‹</button>
+        <h1 class="title">作品详情</h1>
+        <button class="pill" data-goto="creator-profile">作者</button>
+      </div>
+      <div class="hero-detail real" style="background-image: url('assets/cos-feed-01.png')"><span class="art-name">赤刃骑士 · 暗红舞台套装</span></div>
+      <p class="caption">以高饱和红黑盔甲、舞台霓虹和长披风为核心，适合发布为竖版 Feed 或下单亚克力卡牌。</p>
+      <div class="metric-row">
+        <div class="metric"><strong>12.8k</strong><span>点赞</span></div>
+        <div class="metric"><strong>4.6k</strong><span>收藏</span></div>
+        <div class="metric"><strong>928</strong><span>评论</span></div>
+        <div class="metric"><strong>86%</strong><span>完成度</span></div>
+      </div>
+      <div class="info-panel">
+        <h2 class="title">生成参数</h2>
+        <div class="kv-list">
+          <div class="kv"><span>Coser</span><strong>红夜</strong></div>
+          <div class="kv"><span>服装</span><strong>战斗披风 + 金属徽记</strong></div>
+          <div class="kv"><span>场景</span><strong>霓虹舞台，亮度 62</strong></div>
+          <div class="kv"><span>水印</span><strong>右下角固定</strong></div>
+        </div>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="comments">查看评论</button>
+        <button class="primary" data-goto="product">实体定制</button>
+      </div>
+    </section>
+
+    <section class="screen" id="comments">
+      <div class="top-row">
+        <button class="back" data-goto="work-detail" aria-label="返回">‹</button>
+        <h1 class="title">评论</h1>
+        <span class="badge">928</span>
+      </div>
+      <div class="comment-card">
+        <div class="comment-avatar"></div>
+        <div><strong>星绘</strong><p class="caption">盔甲边缘的红光很适合做徽章，建议保留金色细节。</p><p class="tips">刚刚 · 32 赞</p></div>
+      </div>
+      <div class="comment-card">
+        <div class="comment-avatar" style="background: linear-gradient(135deg,#00d5ff,#9d6bff)"></div>
+        <div><strong>洛白</strong><p class="caption">如果出桌面立牌，我想要透明底座和夜光背景。</p><p class="tips">12 分钟前 · 18 赞</p></div>
+      </div>
+      <div class="comment-card">
+        <div class="comment-avatar" style="background: linear-gradient(135deg,#36d399,#ffd966)"></div>
+        <div><strong>纸月</strong><p class="caption">这个姿势很稳，换成雨夜街区应该也好看。</p><p class="tips">1 小时前 · 7 赞</p></div>
+      </div>
+      <div class="composer">
+        <input value="想问作者这个模板能不能生成视频？" aria-label="评论输入">
+        <button class="primary" style="min-height: 38px; padding: 0 14px" data-goto="comment-sent">发送</button>
+      </div>
+    </section>
+
+    <section class="screen" id="creator-profile">
+      <div class="top-row">
+        <button class="back" data-goto="feed" aria-label="返回">‹</button>
+        <h1 class="title">作者主页</h1>
+        <button class="pill" data-goto="chat-detail">私信</button>
+      </div>
+      <div class="profile-head">
+        <div class="profile-avatar"></div>
+        <div style="text-align: center">
+          <h1 class="title">@红夜Coser</h1>
+          <p class="tips">擅长黑红高对比角色与实体周边设计</p>
+        </div>
+        <button class="primary" data-goto="follow-result">关注</button>
+      </div>
+      <div class="metric-row">
+        <div class="metric"><strong>24</strong><span>作品</span></div>
+        <div class="metric"><strong>8.2k</strong><span>粉丝</span></div>
+        <div class="metric"><strong>31</strong><span>模板</span></div>
+        <div class="metric"><strong>4.9</strong><span>评分</span></div>
+      </div>
+      <div class="section-head"><h2>代表作品</h2><p class="tips">不重复样例</p></div>
+      <div class="works-grid">
+        <button class="work real" style="background-image: url('assets/cos-feed-01.png')" data-goto="work-detail"><span class="art-name">赤刃骑士</span></button>
+        <button class="work real" style="background-image: url('assets/cos-feed-02.png')" data-goto="work-detail"><span class="art-name">霓蓝指挥官</span></button>
+        <button class="work real" style="background-image: url('assets/cos-feed-05.png')" data-goto="work-detail"><span class="art-name">冰轨歌姬</span></button>
+      </div>
+    </section>
+
+    <section class="screen" id="style-lab">
+      <div class="top-row">
+        <button class="back" data-goto="studio" aria-label="返回">‹</button>
+        <h1 class="title">高级参数</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="info-panel">
+        <h2 class="title">Prompt 方向</h2>
+        <input class="form-field" value="红黑战斗披风，霓虹舞台，金属徽记，海报站姿" aria-label="Prompt 方向">
+        <div class="color-row">
+          <span class="swatch" style="--swatch:#ff2b5e"></span>
+          <span class="swatch" style="--swatch:#ffd966"></span>
+          <span class="swatch" style="--swatch:#00d5ff"></span>
+          <span class="swatch" style="--swatch:#9d6bff"></span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="toggle-line"><span>保留原脸部特征</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line" style="margin-top: 10px"><span>强化服装金属质感</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line" style="margin-top: 10px"><span>开启动态短视频预览</span><button class="switch" data-action="toggle"></button></div>
+      </div>
+      <div class="slider-row"><span>细节</span><input type="range" min="0" max="100" value="74"><span>74</span></div>
+      <div class="slider-row"><span>光效</span><input type="range" min="0" max="100" value="58"><span>58</span></div>
+      <button class="primary" style="width: 100%; margin-top: 18px" data-action="generate">保存并生成</button>
+    </section>
+
+    <section class="screen" id="publish-settings">
+      <div class="top-row">
+        <button class="back" data-goto="studio" aria-label="返回">‹</button>
+        <h1 class="title">发布设置</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="publish-cover real" id="publishCover" style="background-image: url('assets/cos-feed-01.png')"><span class="art-name">发布封面 · 赤刃骑士</span></div>
+      <div class="info-panel">
+        <h2 class="title">作品文案</h2>
+        <input class="form-field" value="今日换装：赤刃骑士，暗红舞台限定套装。" aria-label="作品文案">
+        <div class="tags"><span class="tag">#AI换装</span><span class="tag">#赤刃骑士</span><span class="tag">#实体可定制</span></div>
+      </div>
+      <div class="section list">
+        <div class="toggle-line"><span>允许评论</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line"><span>公开到首页 Feed</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line"><span>展示实体定制入口</span><button class="switch on" data-action="toggle"></button></div>
+      </div>
+      <button class="primary" style="width: 100%" data-goto="publish-result">发布作品</button>
+    </section>
+
+    <section class="screen" id="publish-result">
+      <div class="top-row">
+        <button class="back" data-goto="publish-settings" aria-label="返回">‹</button>
+        <h1 class="title">发布完成</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="info-panel" style="text-align: center">
+        <div class="success-img real" id="publishedResultImg" style="background-image: url('assets/cos-feed-01.png')"></div>
+        <h2 class="title">已发布到首页</h2>
+        <p class="caption" style="margin-top: 8px">作品获得 0.5 点数奖励，实体定制入口已展示。</p>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="work-detail">查看作品</button>
+        <button class="primary" data-goto="feed">回到首页</button>
+      </div>
+    </section>
+
+    <section class="screen" id="chat-detail">
+      <div class="top-row">
+        <button class="back" data-goto="messages" aria-label="返回">‹</button>
+        <h1 class="title">私信</h1>
+        <button class="pill" data-goto="creator-profile">主页</button>
+      </div>
+      <div class="chat-list">
+        <div class="bubble system">正在咨询「桌面立牌」定制</div>
+        <div class="bubble">你好，夜光底座可以做吗？我想配霓蓝指挥官那张。</div>
+        <div class="bubble me">可以，夜光底座需要加 12 元，制作周期多 1 天。</div>
+        <div class="bubble">那我选 100mm 大尺寸，能帮我确认总价吗？</div>
+        <button class="address-card" data-goto="checkout"><strong>订单草稿</strong><p class="tips">桌面立牌 · 大尺寸 · 夜光底座 · 80 元</p></button>
+      </div>
+      <div class="composer">
+        <input value="可以，我现在去确认支付。" aria-label="私信输入">
+        <button class="primary" style="min-height: 38px; padding: 0 14px" data-goto="chat-confirm">发送</button>
+      </div>
+    </section>
+
+    <section class="screen" id="message-detail">
+      <div class="top-row">
+        <button class="back" data-goto="messages" aria-label="返回">‹</button>
+        <h1 class="title">通知详情</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="info-panel">
+        <h2 class="title">星绘收藏了你的作品</h2>
+        <p class="caption" style="margin-top: 8px">对方收藏的是「霓蓝指挥官」，并关注了该作品的实体定制入口。</p>
+        <div class="publish-cover real" style="min-height: 180px; margin-top: 14px; background-image: url('assets/cos-feed-02.png')"><span class="art-name">霓蓝指挥官</span></div>
+      </div>
+      <button class="primary" style="width: 100%; margin-top: 14px" data-goto="work-detail">查看作品数据</button>
+    </section>
+
+    <section class="screen" id="membership">
+      <div class="top-row">
+        <button class="back" data-goto="wallet" aria-label="返回">‹</button>
+        <h1 class="title">月卡权益</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="wallet-balance">
+        <p class="caption">30 元 / 月</p>
+        <strong>每日 2 点</strong>
+        <p class="tips">适合持续生成图片、视频模板和作品发布。</p>
+      </div>
+      <div class="list">
+        <div class="list-card"><div class="list-main"><strong>每日自动领取</strong><p class="tips">每天 09:00 发放到点数钱包</p></div><span class="badge">+2</span></div>
+        <div class="list-card"><div class="list-main"><strong>发布奖励加成</strong><p class="tips">公开作品额外奖励提升到 0.8 点</p></div><span class="badge">+60%</span></div>
+        <div class="list-card"><div class="list-main"><strong>优先生成队列</strong><p class="tips">高峰期优先进入 AI 绘制队列</p></div><span class="badge">Pro</span></div>
+      </div>
+      <button class="primary" style="width: 100%; margin-top: 16px" data-goto="membership-result">开通月卡</button>
+    </section>
+
+    <section class="screen" id="membership-result">
+      <div class="top-row">
+        <button class="back" data-goto="membership" aria-label="返回">‹</button>
+        <h1 class="title">月卡已开通</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="info-panel" style="text-align: center">
+        <div class="wand">✓</div>
+        <h2 class="title">每日 2 点已生效</h2>
+        <p class="caption" style="margin-top: 8px">今日奖励已发放，明天 09:00 会自动到账。</p>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="wallet">查看钱包</button>
+        <button class="primary" data-goto="studio">去工坊生成</button>
+      </div>
+    </section>
+
+    <section class="screen" id="checkout">
+      <div class="top-row">
+        <button class="back" data-goto="product" aria-label="返回">‹</button>
+        <h1 class="title">确认支付</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="list-card">
+        <div class="list-thumb real" style="background-image: url('assets/cos-feed-01.png')"></div>
+        <div class="list-main"><strong>亚克力卡牌</strong><p class="tips">赤刃骑士 · 标准尺寸 70mm × 100mm</p></div>
+        <span class="badge">28 元</span>
+      </div>
+      <button class="address-card" style="margin-top: 12px" data-goto="address-edit">
+        <strong>收货地址</strong>
+        <p class="tips">林夏 · 138****5208 · 上海市静安区未来路 88 号</p>
+      </button>
+      <div class="info-panel" style="margin-top: 12px">
+        <h2 class="title">费用明细</h2>
+        <div class="kv-list">
+          <div class="kv"><span>商品金额</span><strong>28 元</strong></div>
+          <div class="kv"><span>运费</span><strong>6 元</strong></div>
+          <div class="kv"><span>会员抵扣</span><strong style="color: var(--gold)">-4 元</strong></div>
+          <div class="kv"><span>应付</span><strong>30 元</strong></div>
+        </div>
+      </div>
+      <button class="primary" style="width: 100%; margin-top: 16px" data-goto="payment-result">微信支付 30 元</button>
+    </section>
+
+    <section class="screen" id="address-edit">
+      <div class="top-row">
+        <button class="back" data-goto="checkout" aria-label="返回">‹</button>
+        <h1 class="title">编辑地址</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <input class="form-field" value="林夏" aria-label="收货人">
+      <input class="form-field" value="138 0000 5208" aria-label="手机号">
+      <input class="form-field" value="上海市 静安区 未来路 88 号 1201 室" aria-label="详细地址">
+      <div class="toggle-line" style="margin-top: 10px"><span>设为默认地址</span><button class="switch on" data-action="toggle"></button></div>
+      <button class="primary" style="width: 100%; margin-top: 18px" data-goto="checkout">保存地址</button>
+    </section>
+
+    <section class="screen" id="payment-result">
+      <div class="top-row">
+        <button class="back" data-goto="checkout" aria-label="返回">‹</button>
+        <h1 class="title">支付结果</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="info-panel" style="text-align: center">
+        <div class="wand">✓</div>
+        <h2 class="title">支付成功</h2>
+        <p class="caption" style="margin-top: 8px">订单已进入制作队列，预计 3 个工作日内发货。</p>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="order-detail">查看订单</button>
+        <button class="primary" data-goto="feed">继续浏览</button>
+      </div>
+    </section>
+
+    <section class="screen" id="order-detail">
+      <div class="top-row">
+        <button class="back" data-goto="orders" aria-label="返回">‹</button>
+        <h1 class="title">订单详情</h1>
+        <span class="badge">制作中</span>
+      </div>
+      <div class="list-card">
+        <div class="list-thumb real" style="background-image: url('assets/cos-feed-01.png')"></div>
+        <div class="list-main"><strong>亚克力卡牌 · 赤刃骑士</strong><p class="tips">订单号 HT202606081124</p></div>
+      </div>
+      <div class="info-panel" style="margin-top: 12px">
+        <h2 class="title">物流进度</h2>
+        <div class="timeline">
+          <div class="timeline-step"><span class="timeline-dot"></span><div><strong>制作中</strong><p class="tips">UV 打样已通过，正在排产。</p></div></div>
+          <div class="timeline-step"><span class="timeline-dot" style="background: var(--gold)"></span><div><strong>商家接单</strong><p class="tips">2026-06-08 11:34</p></div></div>
+          <div class="timeline-step"><span class="timeline-dot" style="background: #666"></span><div><strong>付款成功</strong><p class="tips">2026-06-08 11:25</p></div></div>
+        </div>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="chat-detail">联系商家</button>
+        <button class="primary" data-goto="product">再定制一件</button>
+      </div>
+    </section>
+
+    <section class="screen" id="upload-capture">
+      <div class="top-row">
+        <button class="back" data-goto="upload" aria-label="返回">‹</button>
+        <h1 class="title">上传照片</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="hero-detail real" style="min-height: 280px; background-image: url('assets/cos-feed-01.png')"><span class="art-name">人脸角度采集</span></div>
+      <div class="info-panel">
+        <h2 class="title">照片要求</h2>
+        <div class="kv-list">
+          <div class="kv"><span>清晰度</span><strong>面部无遮挡</strong></div>
+          <div class="kv"><span>角度</span><strong>正面 / 左 45° / 右 45°</strong></div>
+          <div class="kv"><span>用途</span><strong>仅用于数字分身生成</strong></div>
+        </div>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="face-check">相册选择</button>
+        <button class="primary" data-goto="face-check">拍照模拟</button>
+      </div>
+    </section>
+
+    <section class="screen" id="face-check">
+      <div class="top-row">
+        <button class="back" data-goto="upload-capture" aria-label="返回">‹</button>
+        <h1 class="title">人脸校验</h1>
+        <span class="badge">通过</span>
+      </div>
+      <div class="list">
+        <div class="list-card"><div class="list-thumb real" style="background-image: url('assets/cos-feed-01.png')"></div><div class="list-main"><strong>正面照</strong><p class="tips">清晰度 96%，光线均匀</p></div><span class="badge">OK</span></div>
+        <div class="list-card"><div class="list-thumb real" style="background-image: url('assets/cos-feed-03.png')"></div><div class="list-main"><strong>左 45°</strong><p class="tips">角度匹配，无遮挡</p></div><span class="badge">OK</span></div>
+        <div class="list-card"><div class="list-thumb real" style="background-image: url('assets/cos-feed-05.png')"></div><div class="list-main"><strong>右 45°</strong><p class="tips">可用于建模训练</p></div><span class="badge">OK</span></div>
+      </div>
+      <div class="info-panel" style="margin-top: 12px">
+        <h2 class="title">隐私确认</h2>
+        <div class="toggle-line" style="margin-top: 10px"><span>仅自己可见</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line" style="margin-top: 10px"><span>允许作品参与分成</span><button class="switch" data-action="toggle"></button></div>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="upload-capture">重新上传</button>
+        <button class="primary" data-goto="avatar-trained">开始训练</button>
+      </div>
+    </section>
+
+    <section class="screen" id="avatar-trained">
+      <div class="top-row">
+        <button class="back" data-goto="face-check" aria-label="返回">‹</button>
+        <h1 class="title">数字分身完成</h1>
+        <span class="badge">新形象</span>
+      </div>
+      <div class="hero-detail real" style="background-image: url('assets/cos-feed-05.png')"><span class="art-name">霜月 · 私有数字分身</span></div>
+      <p class="caption">已生成一个可用于工坊换装的私有形象，后续可选择是否公开收益分成。</p>
+      <div class="two-actions">
+        <button class="stroke" data-goto="upload">继续上传</button>
+        <button class="primary" data-goto="studio">设为工坊形象</button>
+      </div>
+    </section>
+
+    <section class="screen" id="message-read-result">
+      <div class="top-row">
+        <button class="back" data-goto="messages" aria-label="返回">‹</button>
+        <h1 class="title">已读回执</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="info-panel" style="text-align: center">
+        <div class="wand">✓</div>
+        <h2 class="title">已全部标记为已读</h2>
+        <p class="caption" style="margin-top: 8px">互动消息、系统通知、私信未读数已清零。</p>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="notification-settings">通知设置</button>
+        <button class="primary" data-goto="messages">返回消息</button>
+      </div>
+    </section>
+
+    <section class="screen" id="notification-settings">
+      <div class="top-row">
+        <button class="back" data-goto="message-read-result" aria-label="返回">‹</button>
+        <h1 class="title">通知设置</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="list">
+        <div class="toggle-line"><span>点赞与收藏</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line"><span>系统活动</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line"><span>私信提醒</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line"><span>订单物流</span><button class="switch on" data-action="toggle"></button></div>
+      </div>
+      <button class="primary" style="width: 100%; margin-top: 16px" data-goto="messages">保存设置</button>
+    </section>
+
+    <section class="screen" id="creator-subscription">
+      <div class="top-row">
+        <button class="back" data-goto="profile" aria-label="返回">‹</button>
+        <h1 class="title">关注管理</h1>
+        <span class="badge">已关注</span>
+      </div>
+      <div class="info-panel">
+        <h2 class="title">@红夜Coser</h2>
+        <p class="caption" style="margin-top: 8px">你已关注该创作者，可第一时间看到新模板、新作品和实体定制上架。</p>
+      </div>
+      <div class="list" style="margin-top: 12px">
+        <div class="toggle-line"><span>新作品提醒</span><button class="switch on" data-action="toggle"></button></div>
+        <div class="toggle-line"><span>模板上架提醒</span><button class="switch on" data-action="toggle"></button></div>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="creator-benefits">查看权益</button>
+        <button class="primary" data-goto="creator-profile">进入主页</button>
+      </div>
+    </section>
+
+    <section class="screen" id="creator-benefits">
+      <div class="top-row">
+        <button class="back" data-goto="creator-subscription" aria-label="返回">‹</button>
+        <h1 class="title">创作者权益</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="list">
+        <div class="list-card"><div class="list-main"><strong>优先试用模板</strong><p class="tips">关注用户提前 24 小时试用新模板。</p></div><span class="badge">Soon</span></div>
+        <div class="list-card"><div class="list-main"><strong>定制折扣</strong><p class="tips">实体周边定制享受 95 折。</p></div><span class="badge">95%</span></div>
+        <div class="list-card"><div class="list-main"><strong>作品合集</strong><p class="tips">自动订阅作者精选合集。</p></div><span class="badge">已开</span></div>
+      </div>
+      <button class="primary" style="width: 100%; margin-top: 16px" data-goto="creator-profile">查看作者作品</button>
+    </section>
+
+    <section class="screen" id="follow-result">
+      <div class="top-row">
+        <button class="back" data-goto="creator-profile" aria-label="返回">‹</button>
+        <h1 class="title">关注成功</h1>
+        <span style="width: 36px"></span>
+      </div>
+      <div class="info-panel" style="text-align: center">
+        <div class="profile-avatar"></div>
+        <h2 class="title" style="margin-top: 12px">已关注 @红夜Coser</h2>
+        <p class="caption" style="margin-top: 8px">新作品、模板和实体周边上架会出现在你的消息里。</p>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="creator-benefits">关注权益</button>
+        <button class="primary" data-goto="chat-detail">发送私信</button>
+      </div>
+    </section>
+
+    <section class="screen" id="comment-sent">
+      <div class="top-row">
+        <button class="back" data-goto="comments" aria-label="返回">‹</button>
+        <h1 class="title">评论已发送</h1>
+        <span class="badge">公开</span>
+      </div>
+      <div class="comment-card">
+        <div class="comment-avatar"></div>
+        <div><strong>我</strong><p class="caption">想问作者这个模板能不能生成视频？</p><p class="tips">刚刚 · 等待作者回复</p></div>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="work-detail">返回作品</button>
+        <button class="primary" data-goto="chat-detail">私信作者</button>
+      </div>
+    </section>
+
+    <section class="screen" id="chat-confirm">
+      <div class="top-row">
+        <button class="back" data-goto="chat-detail" aria-label="返回">‹</button>
+        <h1 class="title">消息已发送</h1>
+        <span class="badge">已送达</span>
+      </div>
+      <div class="chat-list">
+        <div class="bubble me">可以，我现在去确认支付。</div>
+        <div class="bubble system">商家通常 10 分钟内回复</div>
+      </div>
+      <div class="info-panel">
+        <h2 class="title">下一步</h2>
+        <p class="caption" style="margin-top: 8px">你可以直接进入订单草稿确认支付，也可以继续等待商家回复。</p>
+      </div>
+      <div class="two-actions">
+        <button class="stroke" data-goto="chat-detail">继续聊天</button>
+        <button class="primary" data-goto="checkout">确认订单</button>
+      </div>
+    </section>
+
+    <nav class="bottom-nav" aria-label="底部导航">
+      <button class="nav-btn active" data-tab="feed" data-goto="feed"><span class="nav-icon">⌂</span><span>首页</span></button>
+      <button class="nav-btn create" data-tab="studio" data-goto="studio"><span class="nav-icon">＋</span><span>工坊</span></button>
+      <button class="nav-btn" data-tab="messages" data-goto="messages"><span class="nav-icon">◍</span><span>消息</span></button>
+      <button class="nav-btn" data-tab="profile" data-goto="profile"><span class="nav-icon">◎</span><span>我的</span></button>
+    </nav>
+
+    <div class="overlay" id="loading" role="dialog" aria-modal="true" aria-label="AI 正在绘制中">
+      <div class="dialog generate">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px">
+          <div>
+            <h2 class="title">AI 正在生成作品</h2>
+            <p class="caption" id="generationStatus" style="margin-top: 6px">正在读取形象特征</p>
+          </div>
+          <strong id="generationPercent" style="color: var(--gold); font-size: 20px">0%</strong>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="generationFill"></div></div>
+        <div class="generation-layout">
+          <div class="result-preview" id="generationPreview"></div>
+          <div class="generation-steps">
+            <div class="generation-step active">形象识别</div>
+            <div class="generation-step">服装合成</div>
+            <div class="generation-step">场景光效</div>
+            <div class="generation-step">高清出图</div>
+          </div>
+        </div>
+        <p class="tips">模拟真实 App 队列：不会上传数据，只展示本地原型交互。</p>
+      </div>
+    </div>
+
+    <div class="overlay" id="success" role="dialog" aria-modal="true" aria-label="生成成功">
+      <div class="dialog">
+        <div class="success-img real" id="generatedResultImg" style="background-image: url('assets/cos-feed-01.png')"></div>
+        <h2 class="title">作品生成成功</h2>
+        <p class="caption" id="generatedResultText" style="margin-top: 8px">赤刃骑士已生成，可发布到首页或保存到作品墙。</p>
+        <div class="dialog-actions">
+          <button class="primary" data-close-overlay data-goto="publish-settings">继续发布</button>
+          <button class="stroke" data-action="regenerate">再生成</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const screens = [...document.querySelectorAll(".screen")];
+    const nav = document.querySelector(".bottom-nav");
+    const navButtons = [...document.querySelectorAll(".nav-btn")];
+    const loading = document.querySelector("#loading");
+    const success = document.querySelector("#success");
+    const tabScreens = new Set(["feed", "studio", "messages", "profile"]);
+
+    function showScreen(id) {
+      screens.forEach((screen) => screen.classList.toggle("active", screen.id === id));
+      document.getElementById(id)?.scrollTo?.({ top: 0 });
+      nav.classList.toggle("show", id !== "login");
+
+      const activeTab = tabScreens.has(id) ? id : null;
+      navButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.tab === activeTab);
+      });
+    }
+
+    function closeOverlays() {
+      if (generationTimer) window.clearInterval(generationTimer);
+      loading.classList.remove("show");
+      success.classList.remove("show");
+    }
+
+    const generatedWorks = [
+      { src: "assets/cos-feed-01.png", name: "赤刃骑士", desc: "赤刃骑士已生成，可发布到首页或保存到作品墙。" },
+      { src: "assets/cos-feed-02.png", name: "霓蓝指挥官", desc: "霓蓝指挥官已生成，推荐做金属徽章和赛博主题封面。" },
+      { src: "assets/cos-feed-03.png", name: "金羽祭司", desc: "金羽祭司已生成，推荐做桌面立牌和典礼风海报。" },
+      { src: "assets/cos-feed-04.png", name: "森境弓手", desc: "森境弓手已生成，推荐做挂画和自然系作品集。" },
+      { src: "assets/cos-feed-05.png", name: "冰轨歌姬", desc: "冰轨歌姬已生成，推荐做限定立牌和舞台短视频封面。" }
+    ];
+    const stageLabels = ["正在读取形象特征", "正在合成服装与道具", "正在匹配场景光效", "正在输出高清作品"];
+    const generationStatus = document.querySelector("#generationStatus");
+    const generationPercent = document.querySelector("#generationPercent");
+    const generationFill = document.querySelector("#generationFill");
+    const generationPreview = document.querySelector("#generationPreview");
+    const generationSteps = [...document.querySelectorAll(".generation-step")];
+    const generatedResultImg = document.querySelector("#generatedResultImg");
+    const generatedResultText = document.querySelector("#generatedResultText");
+    const publishCover = document.querySelector("#publishCover");
+    const publishedResultImg = document.querySelector("#publishedResultImg");
+    const productPreview = document.querySelector("#productPreview");
+    const studioPreviewImg = document.querySelector("#studioPreviewImg");
+    const generatedChips = [...document.querySelectorAll(".generated-chip")];
+    let currentGeneratedIndex = 0;
+    let generationTimer = null;
+
+    function setGeneratedWork(index) {
+      currentGeneratedIndex = (index + generatedWorks.length) % generatedWorks.length;
+      const work = generatedWorks[currentGeneratedIndex];
+      if (generationPreview) generationPreview.style.backgroundImage = `url("${work.src}")`;
+      if (generatedResultImg) generatedResultImg.style.backgroundImage = `url("${work.src}")`;
+      if (publishCover) publishCover.style.backgroundImage = `url("${work.src}")`;
+      if (publishedResultImg) publishedResultImg.style.backgroundImage = `url("${work.src}")`;
+      if (productPreview) productPreview.style.backgroundImage = `url("${work.src}")`;
+      if (studioPreviewImg) studioPreviewImg.src = work.src;
+      if (generatedResultText) generatedResultText.textContent = work.desc;
+      generatedChips.forEach((chip, chipIndex) => {
+        chip.classList.toggle("active", chipIndex === currentGeneratedIndex);
+        chip.classList.toggle("selected", chipIndex === currentGeneratedIndex);
+      });
+    }
+
+    function updateGenerationProgress(progress) {
+      const percent = Math.min(100, Math.round(progress));
+      const stageIndex = percent < 30 ? 0 : percent < 62 ? 1 : percent < 86 ? 2 : 3;
+      if (generationPercent) generationPercent.textContent = `${percent}%`;
+      if (generationFill) generationFill.style.width = `${percent}%`;
+      if (generationStatus) generationStatus.textContent = stageLabels[stageIndex];
+      generationSteps.forEach((step, index) => {
+        step.classList.toggle("done", index < stageIndex);
+        step.classList.toggle("active", index === stageIndex);
+      });
+    }
+
+    function startGeneration() {
+      setGeneratedWork(currentGeneratedIndex + 1);
+      success.classList.remove("show");
+      loading.classList.add("show");
+      if (generationTimer) window.clearInterval(generationTimer);
+      let progress = 0;
+      updateGenerationProgress(progress);
+      generationTimer = window.setInterval(() => {
+        progress += progress < 70 ? 14 : 8;
+        updateGenerationProgress(progress);
+        if (progress >= 100) {
+          window.clearInterval(generationTimer);
+          generationTimer = null;
+          window.setTimeout(() => {
+            loading.classList.remove("show");
+            success.classList.add("show");
+          }, 260);
+        }
+      }, 260);
+    }
+
+    setGeneratedWork(0);
+
+    const feedTrack = document.querySelector("#feedTrack");
+    const feedSlides = [...document.querySelectorAll(".feed-slide")];
+    const feedIndexText = document.querySelector("#feedIndex");
+    const feedDots = [...document.querySelectorAll(".feed-dot")];
+    let feedPage = 0;
+    let feedStartX = 0;
+    let feedStartY = 0;
+    let feedWheelLocked = false;
+
+    function setFeedPage(nextPage) {
+      if (!feedTrack || !feedSlides.length) return;
+      feedPage = Math.max(0, Math.min(nextPage, feedSlides.length - 1));
+      feedTrack.style.transform = `translateY(-${feedPage * 100}%)`;
+      if (feedIndexText) feedIndexText.textContent = `${feedPage + 1} / ${feedSlides.length}`;
+      feedDots.forEach((dot, index) => dot.classList.toggle("active", index === feedPage));
+    }
+
+    function handleFeedSwipe(endX, endY) {
+      const dx = endX - feedStartX;
+      const dy = endY - feedStartY;
+      if (Math.abs(dy) < 42 || Math.abs(dy) < Math.abs(dx)) return;
+      setFeedPage(feedPage + (dy < 0 ? 1 : -1));
+    }
+
+    if (feedTrack) {
+      setFeedPage(0);
+      feedTrack.addEventListener("touchstart", (event) => {
+        feedStartX = event.changedTouches[0].clientX;
+        feedStartY = event.changedTouches[0].clientY;
+      }, { passive: true });
+      feedTrack.addEventListener("touchend", (event) => {
+        handleFeedSwipe(event.changedTouches[0].clientX, event.changedTouches[0].clientY);
+      }, { passive: true });
+      feedTrack.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "touch") return;
+        feedStartX = event.clientX;
+        feedStartY = event.clientY;
+      });
+      feedTrack.addEventListener("pointerup", (event) => {
+        if (event.pointerType === "touch") return;
+        handleFeedSwipe(event.clientX, event.clientY);
+      });
+      document.querySelector("#feed").addEventListener("wheel", (event) => {
+        if (!document.querySelector("#feed").classList.contains("active")) return;
+        event.preventDefault();
+        if (feedWheelLocked || Math.abs(event.deltaY) < 20) return;
+        feedWheelLocked = true;
+        setFeedPage(feedPage + (event.deltaY > 0 ? 1 : -1));
+        window.setTimeout(() => { feedWheelLocked = false; }, 380);
+      }, { passive: false });
+    }
+
+    document.addEventListener("click", (event) => {
+      const goto = event.target.closest("[data-goto]");
+      if (goto) {
+        if (goto.hasAttribute("data-close-overlay")) closeOverlays();
+        showScreen(goto.dataset.goto);
+      }
+
+      const selectable = event.target.closest(".selectable");
+      if (selectable && selectable.parentElement) {
+        const group = selectable.parentElement;
+        if (group.classList.contains("multi")) {
+          selectable.classList.toggle("selected");
+        } else {
+          [...group.querySelectorAll(".selectable")].forEach((item) => item.classList.remove("selected"));
+          selectable.classList.add("selected");
+        }
+      }
+
+      const toggle = event.target.closest('[data-action="toggle"]');
+      if (toggle) toggle.classList.toggle("on");
+
+      const like = event.target.closest('[data-action="like"]');
+      if (like) {
+        like.classList.toggle("active");
+        const burst = document.createElement("span");
+        burst.className = "heart-burst";
+        like.querySelector(".icon").appendChild(burst);
+        setTimeout(() => burst.remove(), 450);
+      }
+
+      const save = event.target.closest('[data-action="save"]');
+      if (save) save.classList.toggle("active");
+
+      const regenerate = event.target.closest('[data-action="regenerate"]');
+      if (regenerate) {
+        startGeneration();
+      }
+
+      const generate = event.target.closest('[data-action="generate"]');
+      if (generate) {
+        startGeneration();
+      }
+
+      const generatedChip = event.target.closest(".generated-chip");
+      if (generatedChip) {
+        const chipIndex = generatedChips.indexOf(generatedChip);
+        if (chipIndex >= 0) setGeneratedWork(chipIndex);
+      }
+
+      const close = event.target.closest("[data-close-overlay]");
+      if (close && !goto) closeOverlays();
+    });
+
+    document.querySelectorAll(".seg-btn").forEach((button) => {
+      button.addEventListener("click", () => {
+        button.parentElement.querySelectorAll(".seg-btn").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+      });
+    });
+
+    document.querySelectorAll('input[type="range"]').forEach((range) => {
+      range.addEventListener("input", () => {
+        range.nextElementSibling.textContent = range.value;
+      });
+    });
+
+    [loading, success].forEach((overlay) => {
+      overlay.addEventListener("click", (event) => {
+        if (event.target === overlay && overlay !== loading) closeOverlays();
+      });
+    });
+  </script>
+</body>
+</html>
